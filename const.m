@@ -1,7 +1,7 @@
 classdef const
     %CONSTANTS Summary of this class goes here
     %   Detailed explanation goes here
-    % TODO Add explanation kekw
+    % TODO Add explanation 
     
     properties (Constant)
         eff_factor = 1
@@ -15,7 +15,7 @@ classdef const
         V_AC = 7.25E-5
         r_pore = 2E-9 % micropore radius
         rho_pore = 9E5 % 0.9 g/cm3
-        A_AC_BET = 500 
+        A_AC_BET = 1500 
 
         % Ozone and oxygen properties
         A_o2 = 1E-19 % 10 angstroms^2 (Deitz)
