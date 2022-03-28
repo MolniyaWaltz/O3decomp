@@ -1,5 +1,6 @@
 % Decon chamber vertical diffusion model based on Alvarez et. al. (2008)
 % Equation 3
+% https://hal.archives-ouvertes.fr/hal-01938089/file/FAUmes-surf-rev2-proof-Langmuir_sans%20marque.pdf
 
 ub = 0;
 
