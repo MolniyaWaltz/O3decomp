@@ -3,11 +3,12 @@
 % PlasmaSaber Mark 4. 
 
 % Initial variable calculation
-rho_AC = const.m_AC / const.V_AC;
+thisCarbon = carbon(6, 7.25E-5); % g, m3
+thisThermal = thermal(303.15);
 
 runtime = 300;
-[mo3, ppm, po3, litres_o3] = o3gen(runtime);
-vm = const.A_AC_BET * const.m_AC * (const.R * const.T / po3) / (const.Na * const.A_o2);
+[mo3, ppm, po3, litres_o3] = o3gen(runtime, thisThermal.temp);
+vm = thisCarbon.spec_area_BET * thisCarbon.mass * (thermal.gas_const * thisThermal.temp / po3) / (thermal.avogadro * ozone.oxygen_cs_area);
 
 % rate constants
 k1 = 50 * mo3 / litres_o3;
@@ -18,23 +19,22 @@ kd2 = 0.86E3; % kd2 in s^-1
 kd_tot = kd1 + kd2;
 
 % diffusion coefficient calculations
-DK = 9.7E-3 * const.r_pore * sqrt(const.T/48); % Knudsen diffusivity (Equation C3)
+DK = 9.7E-3 * thisCarbon.pore_radius * sqrt(thisThermal.temp/48); % Knudsen diffusivity (Equation C3)
 Dcomb = 1/(1/DK + 1/const.DM); % combined diffusivities (Equation C2)
 
-porosity = 1 - const.rho_pore / rho_AC;
+porosity = 1 - thisCarbon.pore_density / thisCarbon.density;
 tortuosity = 1;
 Deff = porosity * Dcomb / tortuosity;
 
-[theta, v] = langmuir(po3, k1, kd_tot, vm, runtime);
+[theta, v] = langmuir(po3, k1, kd_tot, vm);
 
 runtime_array = [1:1:300];
-[mo3_array, ppm_array, po3_array, litres_o3_array] = o3gen(runtime_array);
-vm_array = const.A_AC_BET * const.m_AC * (const.R * const.T ./ po3_array) / (const.Na * const.A_o2);
-[theta_array, v_array] = langmuir(po3_array, k1, kd_tot, vm_array, runtime_array);
+[mo3_array, ppm_array, po3_array, litres_o3_array] = o3gen(runtime_array, thisThermal.temp);
+vm_array = thisCarbon.spec_area_BET * thisCarbon.mass * (thermal.gas_const * thisThermal.temp ./ po3_array) / (thermal.avogadro * ozone.oxygen_cs_area);
+[theta_array, v_array] = langmuir(po3_array, k1, kd_tot, vm_array);
 
 figure(1); 
 plot(runtime_array,theta_array);
-plot(runtime_array,theta_array ./2);
 title('Surface coverage \theta for CeraPlas runtime');
 xlabel('Runtime (s)');
 ylabel('Surface coverage \theta = v/v_m ');
