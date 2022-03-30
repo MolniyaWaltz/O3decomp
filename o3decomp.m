@@ -26,15 +26,24 @@ porosity = 1 - thisCarbon.pore_density / thisCarbon.density;
 tortuosity = 1;
 Deff = porosity * Dcomb / tortuosity;
 
-[theta, v] = langmuir(po3, k1, kd_tot, vm);
-
-runtime_array = [1:1:300];
-[mo3_array, ppm_array, po3_array, litres_o3_array] = o3gen(runtime_array, thisThermal.temp);
-vm_array = thisCarbon.spec_area_BET * thisCarbon.mass * (thermal.gas_const * thisThermal.temp ./ po3_array) / (thermal.avogadro * ozone.oxygen_cs_area);
-[theta_array, v_array] = langmuir(po3_array, k1, kd_tot, vm_array);
+% ================================
+%         BEGIN SCENARIO
+% ================================
+rateconsts = 5;
+k1_array = linspace(k1/rateconsts, k1, rateconsts);
 
 figure(1); 
-plot(runtime_array,theta_array);
+[theta, v] = langmuir(po3, k1, kd_tot, vm);
+for i = 1:rateconsts
+    runtime_array = [1:1:300];
+    [mo3_array, ppm_array, po3_array, litres_o3_array] = o3gen(runtime_array, thisThermal.temp);
+    vm_array = thisCarbon.spec_area_BET * thisCarbon.mass * (thermal.gas_const * thisThermal.temp ./ po3_array) / (thermal.avogadro * ozone.oxygen_cs_area);
+    [theta_array, v_array] = langmuir(po3_array, k1_array(i), kd_tot, vm_array);
+    figure(1); 
+    plot(runtime_array,theta_array);
+    hold on;
+end
+hold off;
 title('Surface coverage \theta for CeraPlas runtime');
 xlabel('Runtime (s)');
 ylabel('Surface coverage \theta = v/v_m ');
