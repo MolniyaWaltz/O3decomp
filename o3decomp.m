@@ -29,23 +29,51 @@ Deff = porosity * Dcomb / tortuosity;
 % ================================
 %         BEGIN SCENARIO
 % ================================
-rateconsts = 5;
+rateconsts = 6;
 k1_array = linspace(k1/rateconsts, k1, rateconsts);
 
-figure(1); 
+%figure(1); 
 [theta, v] = langmuir(po3, k1, kd_tot, vm);
 for i = 1:rateconsts
     runtime_array = [1:1:300];
     [mo3_array, ppm_array, po3_array, litres_o3_array] = o3gen(runtime_array, thisThermal.temp);
     vm_array = thisCarbon.spec_area_BET * thisCarbon.mass * (thermal.gas_const * thisThermal.temp ./ po3_array) / (thermal.avogadro * ozone.oxygen_cs_area);
     [theta_array, v_array] = langmuir(po3_array, k1_array(i), kd_tot, vm_array);
-    figure(1); 
-    plot(runtime_array,theta_array);
-    hold on;
+    %plot(runtime_array,theta_array);
+    %hold on;
 end
-hold off;
-title('Surface coverage \theta for CeraPlas runtime');
-xlabel('Runtime (s)');
-ylabel('Surface coverage \theta = v/v_m ');
+
+%hold off;
+%title('Surface coverage \theta for CeraPlas runtime');
+%xlabel('Runtime (s)');
+%ylabel('Surface coverage \theta = v/v_m ');
+
+% This code predicts longetivity of activated carbon by determining
+% percentage of available active sites assuming ozone species adsorbs to
+% equilibrium point and desorbs, with 100% of filled sites being destroyed
+% after desorption
+
+runs = 20;
+runtime_array = [1:300];
+active_sites = zeros(1, length(runtime_array));
+active_sites_matrix = zeros(runs, length(runtime_array));
+
+prev_active_sites = ones(1, length(runtime_array));
+
+for i = 1:runs
+    [mo3_array, ppm_array, po3_array, litres_o3_array] = o3gen(runtime_array, thisThermal.temp);
+    vm_array = thisCarbon.spec_area_BET * thisCarbon.mass * (thermal.gas_const * thisThermal.temp ./ po3_array) / (thermal.avogadro * ozone.oxygen_cs_area);
+    [theta_array, v_array] = langmuir(po3_array, k1, kd_tot, vm_array);
+    
+    last_theta_array = theta_array;
+    for j = 1:length(runtime_array)
+        active_sites(j) = (1 - theta_array(j)) * prev_active_sites(j);
+        active_sites_matrix(i, j) = active_sites(j);
+    end
+    prev_active_sites = active_sites;
+end
 
 % TODO multiple plots for decreasing rate constants
+% TODO vary proportion of filled sites destroyed based on organic chemical
+% theory (formed carbonyl/carboxyl groups not reusable while nitrosamines
+% are)
