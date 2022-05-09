@@ -7,20 +7,20 @@ thisCarbon = carbon(6, 7.25E-5); % g, m3
 thisThermal = thermal(303.15);
 
 runtime = 300;
+runtimes = 1:1:runtime;
 [mo3, ppm, po3, litres_o3] = o3gen(runtime, thisThermal.temp);
-vm = thisCarbon.spec_area_BET * thisCarbon.mass * (thermal.gas_const * thisThermal.temp / po3) / (thermal.avogadro * ozone.oxygen_cs_area);
 
 % rate constants
 k1 = 50 * mo3 / litres_o3;
 k2 = 2.13 * mo3 / litres_o3; 
 
-kd1 = 49.5E-3 * (mo3 / litres_o3) / const.M_o3;
+kd1 = 49.5E-3 * (mo3 / litres_o3) / ozone.molar_mass;
 kd2 = 0.86E3; % kd2 in s^-1
 kd_tot = kd1 + kd2;
 
 % diffusion coefficient calculations
 DK = 9.7E-3 * thisCarbon.pore_radius * sqrt(thisThermal.temp/48); % Knudsen diffusivity (Equation C3)
-Dcomb = 1/(1/DK + 1/const.DM); % combined diffusivities (Equation C2)
+Dcomb = 1/(1/DK + 1/ozone.molecular_diffusivity); % combined diffusivities (Equation C2)
 
 porosity = 1 - thisCarbon.pore_density / thisCarbon.density;
 tortuosity = 1;
@@ -32,21 +32,17 @@ Deff = porosity * Dcomb / tortuosity;
 rateconsts = 6;
 k1_array = linspace(k1/rateconsts, k1, rateconsts);
 
-%figure(1); 
-[theta, v] = langmuir(po3, k1, kd_tot, vm);
+figure(1); 
+[theta, v, vm] =  langmuir(po3, k1, kd_tot, thisThermal.temp, thisCarbon.S_BET, thisCarbon.mass)
 for i = 1:rateconsts
-    runtime_array = [1:1:300];
-    [mo3_array, ppm_array, po3_array, litres_o3_array] = o3gen(runtime_array, thisThermal.temp);
-    vm_array = thisCarbon.spec_area_BET * thisCarbon.mass * (thermal.gas_const * thisThermal.temp ./ po3_array) / (thermal.avogadro * ozone.oxygen_cs_area);
-    [theta_array, v_array] = langmuir(po3_array, k1_array(i), kd_tot, vm_array);
-    %plot(runtime_array,theta_array);
-    %hold on;
+    [theta_array, v_array, vm_array] = isotherm(runtime, k1_array(i), kd_tot, thisThermal.temp, thisCarbon.S_BET, thisCarbon.mass);
+    plot(runtimes,theta_array);
+    hold on;
 end
 
-%hold off;
-%title('Surface coverage \theta for CeraPlas runtime');
-%xlabel('Runtime (s)');
-%ylabel('Surface coverage \theta = v/v_m ');
+hold off;
+xlabel('Runtime (s)');
+ylabel('Surface coverage \theta = v/v_m ');
 
 % This code predicts longetivity of activated carbon by determining
 % percentage of available active sites assuming ozone species adsorbs to
@@ -54,19 +50,16 @@ end
 % after desorption
 
 runs = 20;
-runtime_array = [1:300];
-active_sites = zeros(1, length(runtime_array));
-active_sites_matrix = zeros(runs, length(runtime_array));
+active_sites = zeros(1, length(runtimes));
+active_sites_matrix = zeros(runs, length(runtimes));
 
-prev_active_sites = ones(1, length(runtime_array));
+prev_active_sites = ones(1, length(runtimes));
 
 for i = 1:runs
-    [mo3_array, ppm_array, po3_array, litres_o3_array] = o3gen(runtime_array, thisThermal.temp);
-    vm_array = thisCarbon.spec_area_BET * thisCarbon.mass * (thermal.gas_const * thisThermal.temp ./ po3_array) / (thermal.avogadro * ozone.oxygen_cs_area);
-    [theta_array, v_array] = langmuir(po3_array, k1, kd_tot, vm_array);
+    [theta_array,v_array,vm_array] = isotherm(runtime, k1, kd_tot, thisThermal.temp, thisCarbon.S_BET, thisCarbon.mass);
     
     last_theta_array = theta_array;
-    for j = 1:length(runtime_array)
+    for j = 1:length(runtimes)
         active_sites(j) = (1 - theta_array(j)) * prev_active_sites(j);
         active_sites_matrix(i, j) = active_sites(j);
     end
