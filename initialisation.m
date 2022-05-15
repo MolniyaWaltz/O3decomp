@@ -33,7 +33,12 @@ tests_log = cell(1,N);
 m_air = (0.2*0.2*0.25 - 0.1*0.1*0.1) * 1.225 * 1000;
 
 for i = 1:N
-    tests_raw{i} = data_inputter(strcat('tests/test',int2str(i),'.txt'));
+    try
+        tests_raw{i} = inputter(strcat('cleanedtests/test',int2str(i),'.txt'));
+    catch
+        fprintf(strcat("INITIALISATION.m: tests_raw{",int2str(i),"} has been skipped.\n\n"));
+        continue
+    end
 
     tests_molar{i} = tests_raw{i};
     frac_o3 = tests_molar{i}{:,5} ./ 1E6; % Same as the mole fraction by definition.
