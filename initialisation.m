@@ -2,10 +2,12 @@
 thisCarbon = carbon(6, 7.25E-5); % g, m3
 thisThermal = thermal(303.15);
 
-runtime = 300;
+runtime = 10;
 runtimes = 1:1:runtime;
-[mo3, ppm, po3, litres_o3] = o3gen(runtime, thisThermal.temp);
+[moles_o3, ppm, po3, predict_conc_o3] = o3gen(runtime, thisThermal.temp);
 
+mo3 = moles_o3 * ozone.molar_mass;
+litres_o3 = moles_o3 * thermal.gas_const * thisThermal.temp / po3;
 % rate constants
 k1 = 50 * mo3 / litres_o3;
 k2 = 2.13 * mo3 / litres_o3; 
@@ -51,3 +53,21 @@ for i = 1:N
     tests_log{i}{:,5} = log_conc;
     tests_log{i} = renamevars(tests_log{i},"concO3","lnO3");
 end
+
+% Calculate averages
+avg_ppm_acf = zeros(75,1);
+avg_ppm_nocf = zeros(75,1);
+for j = [3 5]
+    avg_ppm_acf = avg_ppm_acf + tests_raw{j}.ppm(1:75);
+end
+
+avg_ppm_acf = avg_ppm_acf / length(j);
+
+for k = [4 7 8]
+    avg_ppm_nocf = avg_ppm_nocf + tests_raw{k}.ppm(1:75);
+end
+
+avg_ppm_nocf = avg_ppm_nocf / length(k);
+
+avg_concO3_acf = avg_ppm_acf .* ((1225 / 28.97)/1E6);
+avg_concO3_nocf = avg_ppm_nocf .* ((1225 / 28.97)/1E6);

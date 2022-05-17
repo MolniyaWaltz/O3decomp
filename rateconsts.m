@@ -1,6 +1,6 @@
 initialisation;
 
-period = 400; % Seconds
+period = 600; % Seconds
 
 t_range = linspace(0, period, period/8);
 tests_nocf = [4, 7, 8];
