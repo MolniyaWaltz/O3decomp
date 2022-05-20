@@ -7,11 +7,11 @@ initialisation;
 % ================================
 %         BEGIN SCENARIO
 % ================================
-rateconsts = 6;
-k1_array = linspace(k1/rateconsts, k1, rateconsts);
+rateconsts = 3;
+k1_array = [1.5772, 1.2491, 1.196] ./ 3600;
 
 figure(1); 
-[theta, v, vm] =  langmuir(po3, k1, kd_tot, thisThermal.temp, thisCarbon.S_BET, thisCarbon.mass)
+[theta, v, vm] =  langmuir(po3, k1, kd_tot, thisThermal.temp, thisCarbon.S_BET, thisCarbon.mass);
 for i = 1:rateconsts
     [theta_array, v_array, vm_array] = isotherm(runtime, k1_array(i), kd_tot, thisThermal.temp, thisCarbon.S_BET, thisCarbon.mass);
     plot(runtimes,theta_array);
@@ -21,6 +21,10 @@ end
 hold off;
 xlabel('Runtime (s)');
 ylabel('Surface coverage \theta = v/v_m ');
+
+%legend(strcat("k1 = ",num2str(k1_array(1) * 3600), " hr^{-1}"), ...
+%    strcat("k1 = ",num2str(k1_array(2) * 3600), " hr^{-1}"), ...
+%    strcat("k1 = ",num2str(k1_array(3) * 3600), " hr^{-1}"));
 
 % This code predicts longetivity of activated carbon by determining
 % percentage of available active sites assuming ozone species adsorbs to
@@ -43,6 +47,11 @@ for i = 1:runs
     end
     prev_active_sites = active_sites;
 end
+
+figure(2); 
+
+surf(active_sites_matrix,'LineStyle','none');
+zlim([0 1]);
 
 % TODO multiple plots for decreasing rate constants
 % TODO vary proportion of filled sites destroyed based on organic chemical

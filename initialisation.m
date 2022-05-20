@@ -2,7 +2,7 @@
 thisCarbon = carbon(6, 7.25E-5); % g, m3
 thisThermal = thermal(303.15);
 
-runtime = 10;
+runtime = 300;
 runtimes = 1:1:runtime;
 [moles_o3, ppm, po3, predict_conc_o3] = o3gen(runtime, thisThermal.temp);
 
@@ -10,6 +10,7 @@ mo3 = moles_o3 * ozone.molar_mass;
 litres_o3 = moles_o3 * thermal.gas_const * thisThermal.temp / po3;
 % rate constants
 k1 = 50 * mo3 / litres_o3;
+% k1 = 0.1348 / 3600;
 k2 = 2.13 * mo3 / litres_o3; 
 
 kd1 = 49.5E-3 * (mo3 / litres_o3) / ozone.molar_mass;

@@ -2,7 +2,7 @@ initialisation;
 
 figure(1);
 t = linspace(0,600,75);
-for i = [3 4]
+for i = [9 10]
     try
         ppms = tests_raw{i}.ppm(1:75);
         scatter(t, ppms, 5, 'filled');
@@ -17,4 +17,4 @@ end
 hold off;
 xlabel("Time (s)");
 ylabel("Concentration of O3 (ppm)");
-saveas(gcf, 'ppm_filtervsno.png')
+saveas(gcf, 'ppm_filtervsno_9_10.png')
