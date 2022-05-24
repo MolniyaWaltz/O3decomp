@@ -7,8 +7,6 @@ c = exp((E1 - EL)/(const.R * const.T)); % BET Constant
 p0 = 55.009 * 10^5;
 p_array = [0:0.01:3.5] * 10^5;
 
-
-
 % BET Isotherm calculation 1:
 numerator = vm * c * p_array;
 p_diff = p0 - p_array;

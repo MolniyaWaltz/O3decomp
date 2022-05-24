@@ -2,7 +2,7 @@
 thisCarbon = carbon(6, 7.25E-5); % g, m3
 thisThermal = thermal(303.15);
 
-runtime = 300;
+runtime = 10;
 runtimes = 1:1:runtime;
 [moles_o3, ppm, po3, predict_conc_o3] = o3gen(runtime, thisThermal.temp);
 
@@ -28,6 +28,8 @@ Deff = porosity * Dcomb / tortuosity;
 % initialise experimental data
 
 N = numel(dir('tests/*.txt'));
+
+colors = ['r', 'g', 'b', 'y'];
 
 tests_raw = cell(1,N);
 tests_molar = cell(1,N);
@@ -58,6 +60,7 @@ end
 % Calculate averages
 avg_ppm_acf = zeros(75,1);
 avg_ppm_nocf = zeros(75,1);
+avg_ppm_gac = zeros(75,1);
 for j = [3 5]
     avg_ppm_acf = avg_ppm_acf + tests_raw{j}.ppm(1:75);
 end
@@ -70,5 +73,12 @@ end
 
 avg_ppm_nocf = avg_ppm_nocf / length(k);
 
+for l = [11 12]
+    avg_ppm_gac = avg_ppm_gac + tests_raw{l}.ppm(1:75);
+end
+
+avg_ppm_gac = avg_ppm_gac / length(l);
+
 avg_concO3_acf = avg_ppm_acf .* ((1225 / 28.97)/1E6);
 avg_concO3_nocf = avg_ppm_nocf .* ((1225 / 28.97)/1E6);
+avg_concO3_gac = avg_ppm_gac .* ((1225 / 28.97)/1E6);
